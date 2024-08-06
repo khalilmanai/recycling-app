@@ -1,21 +1,9 @@
 const mongoose = require("mongoose");
 
 const dropOffSchema = new mongoose.Schema({
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
-  },
-  items: {
-    type: [String],
-    required: true,
-  },
-  location: {
-    type: String,
-    required: true,
-  },
+  user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  location: { type: String, required: true },
+  date: { type: Date, default: Date.now },
 });
 
-const DropOff = mongoose.model("DropOff", dropOffSchema);
-
-module.exports = DropOff;
+module.exports = mongoose.model("DropOff", dropOffSchema);

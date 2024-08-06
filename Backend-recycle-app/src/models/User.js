@@ -2,42 +2,21 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 
 const userSchema = new mongoose.Schema({
-  phoneNumber: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  houseNumber: {
-    type: String,
-    required: true,
-  },
-  building: {
-    type: String,
-    required: true,
-  },
-  neighborhood: {
-    type: String,
-    required: true,
-  },
-  city: {
-    type: String,
-    required: true,
-  },
-  points: {
-    type: Number,
-    default: 0,
-  },
+  name: { type: String, required: true },
+  email: { type: String, unique: true, required: true },
+  password: { type: String, required: true },
+  role: { type: String, enum: ["user", "admin"], default: "user" },
 });
 
-// Hash the password before saving
 userSchema.pre("save", async function (next) {
-  const user = this;
-  if (user.isModified("password")) {
-    user.password = await bcrypt.hash(user.password, 10);
-  }
+  if (!this.isModified("password")) return next();
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
   next();
 });
 
-const User = mongoose.model("User", userSchema);
+userSchema.methods.matchPassword = async function (enteredPassword) {
+  return await bcrypt.compare(enteredPassword, this.password);
+};
 
-module.exports = User;
+module.exports = mongoose.model("User", userSchema);
